@@ -6,6 +6,7 @@ public class PlayerController : MonoBehaviour
 {
     private Rigidbody2D rb;
     private PlayerControls controls;
+    private SpriteRenderer spriteRenderer;
 
     [Header("Movement Settings")]
     public float moveSpeed = 5.0f;
@@ -19,6 +20,8 @@ public class PlayerController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         controls = new PlayerControls();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+
         rb.freezeRotation = true; // Keep player upright, can toggle in inspector
 
         // Movement InputSystem
@@ -42,6 +45,10 @@ public class PlayerController : MonoBehaviour
     {
         // Horizontal movement
         rb.linearVelocity = new Vector2(moveInput.x * moveSpeed, rb.linearVelocity.y);
+
+        // Flip sprite based on direction
+        if (moveInput.x > 0.01f) spriteRenderer.flipX = false; // facing right
+        if (moveInput.x < -0.01f) spriteRenderer.flipX = true;  // facing left
 
     }
 
