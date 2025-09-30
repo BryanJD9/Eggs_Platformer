@@ -16,6 +16,10 @@ public class PlayerController : MonoBehaviour
     public bool isGrounded;
 
 
+    [Header("Attack Settings")]
+    public GameObject attackPrefab;
+    public float attackOffset = 1.0f;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -28,6 +32,9 @@ public class PlayerController : MonoBehaviour
         controls.Movement.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
         controls.Movement.Move.canceled += ctx => moveInput = Vector2.zero;
         controls.Movement.Jump.performed += ctx => Jump();
+
+        controls.Movement.Attack.performed += ctx => Attack();
+
 
     }
 
@@ -59,6 +66,24 @@ public class PlayerController : MonoBehaviour
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
         }
 
+    }
+
+    private void Attack()
+    {
+        Vector2 attackDir = Vector2.zero;
+
+        if (moveInput.x < -0.1f) attackDir = Vector2.left;
+        else if (moveInput.x > 0.1f) attackDir = Vector2.right;
+        else if (moveInput.y > 0.1f) attackDir = Vector2.up;
+        else if (moveInput.y < -0.1f) attackDir = Vector2.down;
+        else
+            attackDir = Vector2.right; // default if standing still
+
+        Vector2 spawnPos = (Vector2)transform.position + attackDir * attackOffset;
+
+        GameObject hitbox = Instantiate(attackPrefab, spawnPos, Quaternion.identity);
+        hitbox.transform.SetParent(transform); // follows the player
+        hitbox.transform.right = attackDir;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
