@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -73,11 +74,43 @@ public class PlayerController : MonoBehaviour
 
     private void Jump()
     {
-        if (isGrounded)
+        // Check if holding down
+        bool holdingDown = attackInput.y < -0.1f;
+
+        if (isGrounded && !holdingDown)
         {
+            // normal jump
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
         }
+        else if (isGrounded && holdingDown)
+        {
+            // fall through
+            StartCoroutine(FallThroughPlatform());
+        }
 
+        //if (isGrounded)
+        //{
+        //    rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+        //}
+
+    }
+
+    private IEnumerator FallThroughPlatform()
+    {
+        // disable collisions between player layer and platform layer
+        Physics2D.IgnoreLayerCollision(
+            LayerMask.NameToLayer("Player"),
+            LayerMask.NameToLayer("Platform"),
+            true
+        );
+
+        yield return new WaitForSeconds(0.3f); // enough time to drop down
+
+        Physics2D.IgnoreLayerCollision(
+            LayerMask.NameToLayer("Player"),
+            LayerMask.NameToLayer("Platform"),
+            false
+        );
     }
 
     private void Attack()
