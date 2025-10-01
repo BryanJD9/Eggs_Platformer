@@ -9,14 +9,17 @@ public class PlayerController : MonoBehaviour
     private PlayerControls controls;
     private SpriteRenderer spriteRenderer;
 
-    [Header("Movement Settings")]
-    public float moveSpeed = 5.0f;
-    public float jumpForce = 5.0f;
-
     private Vector2 moveInput;
     private Vector2 attackInput;
     public bool isGrounded;
 
+    [Header("Movement Settings")]
+    public float moveSpeed = 5.0f;
+    public float jumpForce = 5.0f;
+
+    [Header("Jump Settings")]
+    public int maxJumps = 2;   // 1 = normal jump, 2 = double jump
+    private int jumpsRemaining;
 
     [Header("Attack Settings")]
     public GameObject attackPrefab;
@@ -35,14 +38,16 @@ public class PlayerController : MonoBehaviour
         // Movement InputSystem
         controls.Movement.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
         controls.Movement.Move.canceled += ctx => moveInput = Vector2.zero;
+
         controls.Movement.Jump.performed += ctx => Jump();
+        jumpsRemaining = maxJumps;
 
         controls.Movement.AttackDirection.performed += ctx => attackInput = ctx.ReadValue<Vector2>();
         controls.Movement.AttackDirection.canceled += ctx => attackInput = Vector2.zero;
 
         controls.Movement.Attack.performed += ctx => Attack();
 
-
+        
     }
 
     private void OnEnable()
@@ -74,18 +79,21 @@ public class PlayerController : MonoBehaviour
 
     private void Jump()
     {
-        // Check if holding down
+        // Check if holding down (fall through)
         bool holdingDown = attackInput.y < -0.1f;
 
-        if (isGrounded && !holdingDown)
+        if (holdingDown && isGrounded)
         {
-            // normal jump
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
-        }
-        else if (isGrounded && holdingDown)
-        {
-            // fall through
+            // fall through platform instead of jumping
             StartCoroutine(FallThroughPlatform());
+            return;
+        }
+
+        // double jump
+        if (jumpsRemaining > 0)
+        {
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+            jumpsRemaining--;
         }
 
         //if (isGrounded)
@@ -146,15 +154,21 @@ public class PlayerController : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        // Remember to tag scene objects "Ground" as needed
-        if (collision.gameObject.CompareTag("Ground"))
+        if (collision.gameObject.CompareTag("Ground") || collision.gameObject.layer == LayerMask.NameToLayer("Platform"))
+        {
             isGrounded = true;
+            jumpsRemaining = maxJumps; // refresh jumps
+        }
+
     }
 
     private void OnCollisionExit2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Ground"))
+        if (collision.gameObject.CompareTag("Ground") || collision.gameObject.layer == LayerMask.NameToLayer("Platform"))
+        {
             isGrounded = false;
+        }
+
     }
 
 }
