@@ -2,10 +2,21 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    //every enemy would know the player pos.
+    public Transform player; // Assign player in inspector
+
+    void Awake()
     {
-        
+
+        if (player == null)
+        {
+            // Automatically find player if not assigned
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+            if (playerObj != null)
+            {
+                player = playerObj.transform;
+            }
+        }
     }
 
     // Update is called once per frame
