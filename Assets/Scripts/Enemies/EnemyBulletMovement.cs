@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class EnemyBulletMovement : MonoBehaviour
 {
-    public float speed = 5f;
+    public float speed = 4f;
     public float lifeTime = 3f;
 
     private Vector2 direction;

@@ -13,12 +13,16 @@ public class PlayerController : MonoBehaviour
     private Vector2 attackInput;
     public bool isGrounded;
 
+    [Header("Player Attributes")]
+    public int health;
+
     [Header("Movement Settings")]
     public float moveSpeed = 5.0f;
-    public float jumpForce = 5.0f;
+    public float jumpForce = 15.0f;
+    public float bounceForce = 7.5f;
 
     [Header("Jump Settings")]
-    public int maxJumps = 2;   // 1 = normal jump, 2 = double jump
+    public int maxJumps = 2;   // adjust for more jumps
     private int jumpsRemaining;
 
     [Header("Attack Settings")]
@@ -50,6 +54,7 @@ public class PlayerController : MonoBehaviour
         
     }
 
+    #region InputSystems
     private void OnEnable()
     {
         controls.Movement.Enable();
@@ -59,6 +64,7 @@ public class PlayerController : MonoBehaviour
     {
         controls.Movement.Disable();
     }
+    #endregion
 
     private void Update()
     {
@@ -77,6 +83,7 @@ public class PlayerController : MonoBehaviour
 
     }
 
+    #region Movement Functions
     private void Jump()
     {
         // Check if holding down (fall through)
@@ -103,7 +110,7 @@ public class PlayerController : MonoBehaviour
 
     }
 
-    private IEnumerator FallThroughPlatform()
+    private IEnumerator FallThroughPlatform() // Allow from jumping below platforms
     {
         // disable collisions between player layer and platform layer
         Physics2D.IgnoreLayerCollision(
@@ -121,6 +128,9 @@ public class PlayerController : MonoBehaviour
         );
     }
 
+    #endregion
+
+    #region Attack logic
     private void Attack()
     {
         Vector2 attackDir = facingDirection; // default left/right
@@ -136,21 +146,39 @@ public class PlayerController : MonoBehaviour
         hitbox.transform.SetParent(transform);
         hitbox.transform.right = attackDir;
 
-        //Vector2 attackDir = Vector2.zero;
+        // Tell hitbox its attack direction
+        var hitboxScript = hitbox.GetComponent<AttackHitbox>();
+        if (hitboxScript != null)
+            hitboxScript.attackDir = attackDir;
 
-        //if (moveInput.x < -0.1f) attackDir = Vector2.left;
-        //else if (moveInput.x > 0.1f) attackDir = Vector2.right;
-        //else if (moveInput.y > 0.1f) attackDir = Vector2.up;
-        //else if (moveInput.y < -0.1f) attackDir = Vector2.down;
-        //else
-        //    attackDir = Vector2.right; // default if standing still
+        //Vector2 attackDir = facingDirection; // default left/right
+
+        //if (attackInput.y > 0.1f)
+        //    attackDir = Vector2.up;
+        //else if (attackInput.y < -0.1f)
+        //    attackDir = Vector2.down;
 
         //Vector2 spawnPos = (Vector2)transform.position + attackDir * attackOffset;
 
         //GameObject hitbox = Instantiate(attackPrefab, spawnPos, Quaternion.identity);
-        //hitbox.transform.SetParent(transform); // follows the player
+        //hitbox.transform.SetParent(transform);
         //hitbox.transform.right = attackDir;
+
+        
     }
+
+    public void BounceFromDownAttack()
+    {
+        rb.linearVelocity = new Vector2(rb.linearVelocity.x, bounceForce);
+        // Optional: reset double jump count here
+        if (jumpsRemaining < maxJumps)
+        {
+            jumpsRemaining = 1;
+        }
+        
+    }
+
+    #endregion
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -158,6 +186,12 @@ public class PlayerController : MonoBehaviour
         {
             isGrounded = true;
             jumpsRemaining = maxJumps; // refresh jumps
+        }
+
+        //hit by enemy bullet
+        if (collision.gameObject.CompareTag("EnemyBullet"))
+        {
+            //TODO: Add reaction to being hit by enemy
         }
 
     }
