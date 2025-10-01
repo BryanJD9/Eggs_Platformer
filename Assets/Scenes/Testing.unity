@@ -437,7 +437,7 @@ GameObject:
   - component: {fileID: 1981749993}
   m_Layer: 0
   m_Name: Player_Character
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -558,7 +558,7 @@ MonoBehaviour:
   jumpForce: 10
   isGrounded: 0
   attackPrefab: {fileID: 3265094357809170884, guid: 2b547b5f6d3c01045b796936ca87c61a, type: 3}
-  attackOffset: 1
+  attackOffset: 1.5
 --- !u!61 &1981749992
 BoxCollider2D:
   m_ObjectHideFlags: 0

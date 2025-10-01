@@ -13,12 +13,15 @@ public class PlayerController : MonoBehaviour
     public float jumpForce = 5.0f;
 
     private Vector2 moveInput;
+    private Vector2 attackInput;
     public bool isGrounded;
 
 
     [Header("Attack Settings")]
     public GameObject attackPrefab;
     public float attackOffset = 1.0f;
+    private Vector2 facingDirection = Vector2.right; // default facing right for attacks
+
 
     private void Awake()
     {
@@ -32,6 +35,9 @@ public class PlayerController : MonoBehaviour
         controls.Movement.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
         controls.Movement.Move.canceled += ctx => moveInput = Vector2.zero;
         controls.Movement.Jump.performed += ctx => Jump();
+
+        controls.Movement.AttackDirection.performed += ctx => attackInput = ctx.ReadValue<Vector2>();
+        controls.Movement.AttackDirection.canceled += ctx => attackInput = Vector2.zero;
 
         controls.Movement.Attack.performed += ctx => Attack();
 
@@ -57,6 +63,12 @@ public class PlayerController : MonoBehaviour
         if (moveInput.x > 0.01f) spriteRenderer.flipX = false; // facing right
         if (moveInput.x < -0.01f) spriteRenderer.flipX = true;  // facing left
 
+        // handle facing direction for attacks
+        if (moveInput.x > 0.1f)
+            facingDirection = Vector2.right;
+        else if (moveInput.x < -0.1f)
+            facingDirection = Vector2.left;
+
     }
 
     private void Jump()
@@ -70,20 +82,33 @@ public class PlayerController : MonoBehaviour
 
     private void Attack()
     {
-        Vector2 attackDir = Vector2.zero;
+        Vector2 attackDir = facingDirection; // default left/right
 
-        if (moveInput.x < -0.1f) attackDir = Vector2.left;
-        else if (moveInput.x > 0.1f) attackDir = Vector2.right;
-        else if (moveInput.y > 0.1f) attackDir = Vector2.up;
-        else if (moveInput.y < -0.1f) attackDir = Vector2.down;
-        else
-            attackDir = Vector2.right; // default if standing still
+        if (attackInput.y > 0.1f)
+            attackDir = Vector2.up;
+        else if (attackInput.y < -0.1f)
+            attackDir = Vector2.down;
 
         Vector2 spawnPos = (Vector2)transform.position + attackDir * attackOffset;
 
         GameObject hitbox = Instantiate(attackPrefab, spawnPos, Quaternion.identity);
-        hitbox.transform.SetParent(transform); // follows the player
+        hitbox.transform.SetParent(transform);
         hitbox.transform.right = attackDir;
+
+        //Vector2 attackDir = Vector2.zero;
+
+        //if (moveInput.x < -0.1f) attackDir = Vector2.left;
+        //else if (moveInput.x > 0.1f) attackDir = Vector2.right;
+        //else if (moveInput.y > 0.1f) attackDir = Vector2.up;
+        //else if (moveInput.y < -0.1f) attackDir = Vector2.down;
+        //else
+        //    attackDir = Vector2.right; // default if standing still
+
+        //Vector2 spawnPos = (Vector2)transform.position + attackDir * attackOffset;
+
+        //GameObject hitbox = Instantiate(attackPrefab, spawnPos, Quaternion.identity);
+        //hitbox.transform.SetParent(transform); // follows the player
+        //hitbox.transform.right = attackDir;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)

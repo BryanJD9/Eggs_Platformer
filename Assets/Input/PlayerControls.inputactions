@@ -7,13 +7,13 @@
             "id": "c1ba8be8-90d9-4986-b307-0e8306d9c973",
             "actions": [
                 {
-                    "name": "New action",
-                    "type": "Button",
+                    "name": "AttackDirection",
+                    "type": "Value",
                     "id": "fa668f8a-00e5-4b85-a088-958376ed8ca5",
-                    "expectedControlType": "",
+                    "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "",
-                    "initialStateCheck": false
+                    "initialStateCheck": true
                 },
                 {
                     "name": "Move",
@@ -45,15 +45,59 @@
             ],
             "bindings": [
                 {
-                    "name": "",
-                    "id": "c4a5f0c4-81f3-4caf-83ba-1e92b7bb1481",
+                    "name": "2D Vector",
+                    "id": "45334175-2100-4b85-b4ee-1baf9357f4fd",
+                    "path": "2DVector",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "AttackDirection",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "up",
+                    "id": "a8eef675-e3f1-46c2-8290-beada83f510e",
+                    "path": "<Keyboard>/w",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "AttackDirection",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "d9c499b5-98bb-4768-8dee-a01870d71911",
+                    "path": "<Keyboard>/s",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "AttackDirection",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "left",
+                    "id": "4e441635-e6a4-49c0-a0ab-c1495b86bb33",
                     "path": "",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "New action",
+                    "action": "AttackDirection",
                     "isComposite": false,
-                    "isPartOfComposite": false
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "right",
+                    "id": "8e1468ba-a044-46bd-8518-249665772070",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "AttackDirection",
+                    "isComposite": false,
+                    "isPartOfComposite": true
                 },
                 {
                     "name": "",
