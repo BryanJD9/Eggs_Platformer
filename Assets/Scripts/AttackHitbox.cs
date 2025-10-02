@@ -2,15 +2,15 @@ using UnityEngine;
 
 public class AttackHitbox : MonoBehaviour
 {
-    public float lifetime = 0.2f; // how long the hitbox exists
-    [HideInInspector] public Vector2 attackDir; // direction set by PlayerController
+    public float lifetime = 0.2f;
+    [HideInInspector] public Vector2 attackDir;
 
     private PlayerController player;
 
     private void Start()
     {
         Destroy(gameObject, lifetime);
-        player = GetComponentInParent<PlayerController>(); // player is parent
+        player = GetComponentInParent<PlayerController>();
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -20,12 +20,17 @@ public class AttackHitbox : MonoBehaviour
             Debug.Log("Hit enemy: " + other.name);
             // TODO: damage enemy here
 
-            // Bounce if this was a downwards attack
-            if (attackDir == Vector2.down && player != null)
+            // Bounce if attacking downward
+            if (attackDir.y < -0.5f && player != null)
             {
                 player.BounceFromDownAttack();
+                Debug.Log("Downward hit");
             }
+
         }
+
     }
+
+
 
 }

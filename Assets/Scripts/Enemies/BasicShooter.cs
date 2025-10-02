@@ -2,11 +2,14 @@ using UnityEngine;
 
 public class BasicShooter : Enemy
 {
-
-
+    [Header("References")]
+    //public Transform player;               // Reference to player
     public Transform shootPoint;           // Where the bullets come from
     public GameObject bulletPrefab;        // Assign your bullet prefab
+
+    [Header("Shooting Settings")]
     public float shootInterval = 2f;       // Time between shots
+    [SerializeField] private bool shootInAnyDirection = false; // Toggle in inspector
 
     private SpriteRenderer spriteRenderer;
     private float shootTimer;
@@ -15,7 +18,15 @@ public class BasicShooter : Enemy
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
 
-        // Auto-find shootPoint if not assigned
+        // Auto-find player if not assigned
+        if (player == null)
+        {
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+            if (playerObj != null)
+                player = playerObj.transform;
+        }
+
+        // Auto-find ShootPoint if not assigned
         if (shootPoint == null)
         {
             Transform found = transform.Find("ShootPoint");
@@ -25,22 +36,25 @@ public class BasicShooter : Enemy
                 Debug.LogWarning("ShootPoint not assigned and not found under Enemy!");
         }
 
-        //if (player == null)
+
+        //// Auto-find shootPoint if not assigned
+        //if (shootPoint == null)
         //{
-        //    // Automatically find player if not assigned
-        //    GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-        //    if (playerObj != null)
-        //    {
-        //        player = playerObj.transform;
-        //    }
+        //    Transform found = transform.Find("ShootPoint");
+        //    if (found != null)
+        //        shootPoint = found;
+        //    else
+        //        Debug.LogWarning("ShootPoint not assigned and not found under Enemy!");
         //}
+
+        
     }
 
     private void Update()
     {
-        if (player == null) return;
+        if (player == null || shootPoint == null) return;
 
-        // Face player
+        // Face player (only left/right flip)
         if (player.position.x < transform.position.x)
             spriteRenderer.flipX = true;
         else
@@ -53,21 +67,33 @@ public class BasicShooter : Enemy
             Shoot();
             shootTimer = shootInterval;
         }
+
     }
 
     void Shoot()
     {
         GameObject bullet = Instantiate(bulletPrefab, shootPoint.position, Quaternion.identity);
-
-        // Tell bullet which direction to go
         EnemyBulletMovement bulletScript = bullet.GetComponent<EnemyBulletMovement>();
+
         if (bulletScript != null)
         {
-            if (spriteRenderer.flipX)
-                bulletScript.SetDirection(Vector2.left);
+            if (shootInAnyDirection)
+            {
+                // Calculate normalized direction towards player
+                Vector2 dirToPlayer = (player.position - shootPoint.position).normalized;
+                bulletScript.SetDirection(dirToPlayer);
+            }
             else
-                bulletScript.SetDirection(Vector2.right);
+            {
+                // Left/right shooting only
+                if (spriteRenderer.flipX)
+                    bulletScript.SetDirection(Vector2.left);
+                else
+                    bulletScript.SetDirection(Vector2.right);
+            }
         }
+
+
     }
 
 

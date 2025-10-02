@@ -8,6 +8,7 @@ TagManager:
   - Platform
   - Enemy
   - EnemyBullet
+  - BounceObject
   layers:
   - Default
   - TransparentFX

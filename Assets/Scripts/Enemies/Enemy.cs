@@ -17,6 +17,8 @@ public class Enemy : MonoBehaviour
                 player = playerObj.transform;
             }
         }
+
+
     }
 
     // Update is called once per frame

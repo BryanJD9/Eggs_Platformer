@@ -23,7 +23,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("Jump Settings")]
     public int maxJumps = 2;   // adjust for more jumps
-    private int jumpsRemaining;
+    public int jumpsRemaining;
 
     [Header("Attack Settings")]
     public GameObject attackPrefab;
@@ -128,6 +128,12 @@ public class PlayerController : MonoBehaviour
         );
     }
 
+    private void resetJumps()
+    {
+        isGrounded = true;
+        jumpsRemaining = maxJumps; // refresh jumps
+    }
+
     #endregion
 
     #region Attack logic
@@ -169,14 +175,15 @@ public class PlayerController : MonoBehaviour
 
     public void BounceFromDownAttack()
     {
-        rb.linearVelocity = new Vector2(rb.linearVelocity.x, bounceForce);
-        // Optional: reset double jump count here
-        if (jumpsRemaining < maxJumps)
-        {
-            jumpsRemaining = 1;
-        }
-        
+        // Give upward velocity
+        rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+
+        // Reset jumps as if grounded
+        jumpsRemaining = maxJumps;
+        isGrounded = false; // not grounded, but reset so double jump works again
+
     }
+
 
     #endregion
 
@@ -184,8 +191,8 @@ public class PlayerController : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Ground") || collision.gameObject.layer == LayerMask.NameToLayer("Platform"))
         {
-            isGrounded = true;
-            jumpsRemaining = maxJumps; // refresh jumps
+            resetJumps();
+
         }
 
         //hit by enemy bullet
@@ -198,11 +205,18 @@ public class PlayerController : MonoBehaviour
 
     private void OnCollisionExit2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Ground") || collision.gameObject.layer == LayerMask.NameToLayer("Platform"))
+        if (collision.gameObject.CompareTag("Ground") ||
+            collision.gameObject.layer == LayerMask.NameToLayer("Platform"))
         {
-            isGrounded = false;
+            // Only un-ground if we're not basically standing still vertically
+            if (Mathf.Abs(rb.linearVelocity.y) > 0.01f)
+            {
+                isGrounded = false;
+            }
         }
 
     }
+
+
 
 }
