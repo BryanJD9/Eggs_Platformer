@@ -29,6 +29,13 @@ public class AttackHitbox : MonoBehaviour
 
         }
 
+        // Destroy enemy bullets if hit by attack
+        if (other.CompareTag("EnemyBullet"))
+        {
+            Destroy(other.gameObject);
+            Debug.Log("Destroyed enemy bullet!");
+        }
+
     }
 
 
