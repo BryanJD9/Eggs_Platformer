@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -14,7 +15,9 @@ public class PlayerController : MonoBehaviour
     public bool isGrounded;
 
     [Header("Player Attributes")]
-    public int health;
+    public int maxHealth = 3;
+    public int currentHealth;
+    public static Action<int> OnHealthChanged;
 
     [Header("Movement Settings")]
     public float moveSpeed = 5.0f;
@@ -51,7 +54,30 @@ public class PlayerController : MonoBehaviour
 
         controls.Movement.Attack.performed += ctx => Attack();
 
-        
+        currentHealth = maxHealth;
+        OnHealthChanged?.Invoke(currentHealth);
+
+    }
+    public void TakeDamage(int damage)
+    {
+        currentHealth -= damage;
+        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+
+        OnHealthChanged?.Invoke(currentHealth);
+
+        //TODO: implement game over
+        if (currentHealth <= 0)
+        {
+            Debug.Log("Player died!");
+        }
+    }
+
+    public void Heal(int amount)
+    {
+        currentHealth += amount;
+        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+
+        OnHealthChanged?.Invoke(currentHealth);
     }
 
     #region InputSystems
@@ -196,11 +222,22 @@ public class PlayerController : MonoBehaviour
         }
 
         //hit by enemy bullet
-        if (collision.gameObject.CompareTag("EnemyBullet"))
-        {
-            //TODO: Add reaction to being hit by enemy
-        }
+        //if (collision.gameObject.CompareTag("EnemyBullet"))
+        //{
+        //    //TODO: Add reaction to being hit by enemy
+        //    TakeDamage(1);
+        //    Destroy(collision.gameObject);
+        //}
 
+    }
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("EnemyBullet"))
+        {
+            Debug.Log("Hit by Enemy Bullet (Trigger)!");
+            TakeDamage(1);
+            Destroy(collision.gameObject);
+        }
     }
 
     private void OnCollisionExit2D(Collision2D collision)

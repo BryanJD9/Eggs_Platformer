@@ -28,7 +28,7 @@ public class EnemyBulletMovement : MonoBehaviour
         {
             // Example: damage player
             Debug.Log("Player hit by enemy bullet!");
-            Destroy(gameObject);
+            //Destroy(gameObject);
         }
     }
 
