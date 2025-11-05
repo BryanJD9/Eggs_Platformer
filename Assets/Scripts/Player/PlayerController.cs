@@ -65,12 +65,22 @@ public class PlayerController : MonoBehaviour
 
         OnHealthChanged?.Invoke(currentHealth);
 
-        //TODO: implement game over
         if (currentHealth <= 0)
         {
             Debug.Log("Player died!");
+
+            // Trigger the Game Over UI & pause
+            if (GameOverManager.Instance != null)
+            {
+                GameOverManager.Instance.GameOver();
+            }
+            else
+            {
+                Debug.LogWarning("No GameOverManager instance found in the scene!");
+            }
         }
     }
+
 
     public void Heal(int amount)
     {

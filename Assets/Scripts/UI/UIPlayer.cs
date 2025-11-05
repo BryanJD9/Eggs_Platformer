@@ -5,8 +5,8 @@ public class UIPlayer : MonoBehaviour
 {
     [Header("Health UI Circles")]
     public Image[] healthCircles; // Assign 3 Image objects in the inspector
-    public Color fullColor = Color.red;   // When the player has health
-    public Color emptyColor = Color.white; // When the player lost health
+    public Color fullColor = Color.green;   // When the player has health
+    public Color emptyColor = Color.red; // When the player lost health
 
     private void OnEnable()
     {
