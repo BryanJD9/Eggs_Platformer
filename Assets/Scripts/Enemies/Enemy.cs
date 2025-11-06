@@ -55,7 +55,7 @@ public class Enemy : MonoBehaviour
             Die();
     }
 
-    protected virtual void Die()
+    public virtual void Die()
     {
         // TODO: Add sound or particles on death
         Destroy(gameObject);

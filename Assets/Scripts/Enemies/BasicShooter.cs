@@ -49,7 +49,7 @@ public class BasicShooter : Enemy
         
     }
 
-    private void Update()
+    public void Update()
     {
         if (!isActive || player == null || shootPoint == null)
             return;

@@ -105,7 +105,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1fe4da0a9cb5a774388ad3719a902326, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyBulletMovement
-  speed: 5
+  speed: 4
   lifeTime: 3
 --- !u!50 &384355812830900523
 Rigidbody2D:
