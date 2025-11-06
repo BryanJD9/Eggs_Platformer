@@ -20,7 +20,13 @@ public class WalkingEnemy : Enemy
 
     private void FixedUpdate()
     {
-        if (player == null) return;
+        if (!isActive || player == null)
+        {
+            // Stop moving if off-screen
+            if (rb != null)
+                rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+            return;
+        }
 
         Vector2 directionToPlayer = player.position - transform.position;
 

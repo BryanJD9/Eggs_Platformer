@@ -52,7 +52,8 @@ public class BasicShooter : Enemy
 
     private void Update()
     {
-        if (player == null || shootPoint == null) return;
+        if (!isActive || player == null || shootPoint == null)
+            return;
 
         // Face player (only left/right flip)
         if (player.position.x < transform.position.x)

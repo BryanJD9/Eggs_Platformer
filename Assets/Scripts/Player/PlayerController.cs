@@ -249,7 +249,9 @@ public class PlayerController : MonoBehaviour
         //}
 
         // Enemy collision knockback & damage
-        if (collision.gameObject.CompareTag("Enemy") || collision.gameObject.CompareTag("EnemyBullet"))
+        if (collision.gameObject.CompareTag("Enemy") || 
+            collision.gameObject.CompareTag("EnemyBullet") ||
+            collision.gameObject.CompareTag("Spikes"))
         {
             if (!isInvincible)
             {
@@ -279,6 +281,7 @@ public class PlayerController : MonoBehaviour
     private void OnCollisionExit2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Ground") ||
+            collision.gameObject.CompareTag("Spikes") ||
             collision.gameObject.layer == LayerMask.NameToLayer("Platform"))
         {
             // Only un-ground if we're not basically standing still vertically

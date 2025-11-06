@@ -16,6 +16,9 @@ public class Enemy : MonoBehaviour
     public Color damageFlashColor = Color.red;
     private Color originalColor;
 
+    [Header("Visibility / Activation")]
+    public bool isActive = false; // Tracks if the enemy is visible and active
+
     protected virtual void Awake()
     {
         if (player == null)
@@ -30,10 +33,16 @@ public class Enemy : MonoBehaviour
             originalColor = spriteRenderer.color;
 
         currentHealth = maxHealth;
-
     }
 
+    protected virtual void Update()
+    {
+        // Only run logic when active (override in child classes)
+        if (!isActive)
+            return;
+    }
 
+    // --- Health System ---
     public virtual void TakeDamage(int damage)
     {
         currentHealth -= damage;
@@ -44,14 +53,12 @@ public class Enemy : MonoBehaviour
 
         if (currentHealth <= 0)
             Die();
-
     }
 
     protected virtual void Die()
     {
-        // TODO: Add sound on death
+        // TODO: Add sound or particles on death
         Destroy(gameObject);
-
     }
 
     private IEnumerator DamageFlash()
@@ -62,6 +69,18 @@ public class Enemy : MonoBehaviour
             yield return new WaitForSeconds(flashDuration);
             spriteRenderer.color = originalColor;
         }
+    }
+
+    // --- Visibility Management ---
+    private void OnBecameVisible()
+    {
+        isActive = true;
+
+    }
+
+    private void OnBecameInvisible()
+    {
+        isActive = false;
 
     }
 }

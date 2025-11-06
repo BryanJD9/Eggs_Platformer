@@ -9,6 +9,7 @@ TagManager:
   - Enemy
   - EnemyBullet
   - BounceObject
+  - Spikes
   layers:
   - Default
   - TransparentFX
