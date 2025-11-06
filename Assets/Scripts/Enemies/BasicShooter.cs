@@ -11,14 +11,13 @@ public class BasicShooter : Enemy
     public float shootInterval = 2f;       // Time between shots
     [SerializeField] private bool shootInAnyDirection = false; // Toggle in inspector
 
-    private SpriteRenderer spriteRenderer;
     private float shootTimer;
 
     private void Start()
     {
-        spriteRenderer = GetComponent<SpriteRenderer>();
+        //spriteRenderer = GetComponent<SpriteRenderer>();
 
-        // Auto-find player if not assigned
+        // find player if not assigned
         if (player == null)
         {
             GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
@@ -26,7 +25,7 @@ public class BasicShooter : Enemy
                 player = playerObj.transform;
         }
 
-        // Auto-find ShootPoint if not assigned
+        // find ShootPoint if not assigned
         if (shootPoint == null)
         {
             Transform found = transform.Find("ShootPoint");

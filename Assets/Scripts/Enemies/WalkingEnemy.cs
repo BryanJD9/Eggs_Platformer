@@ -7,12 +7,11 @@ public class WalkingEnemy : Enemy
     public float moveSpeed = 2f; // How fast it walks toward the player
 
     private Rigidbody2D rb;
-    private SpriteRenderer spriteRenderer;
 
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
+        //spriteRenderer = GetComponent<SpriteRenderer>();
 
         // Prevent physics rotation
         rb.freezeRotation = true;

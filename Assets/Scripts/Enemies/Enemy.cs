@@ -5,7 +5,7 @@ public class Enemy : MonoBehaviour
 {
     [Header("References")]
     public Transform player; // Assigned automatically if not set
-    private SpriteRenderer spriteRenderer;
+    public SpriteRenderer spriteRenderer;
 
     [Header("Enemy Stats")]
     public int maxHealth = 3;
