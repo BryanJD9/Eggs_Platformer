@@ -3,6 +3,8 @@ using UnityEngine;
 public class AttackHitbox : MonoBehaviour
 {
     public float lifetime = 0.2f;
+    public int damage = 1;
+
     [HideInInspector] public Vector2 attackDir;
 
     private PlayerController player;
@@ -19,6 +21,12 @@ public class AttackHitbox : MonoBehaviour
         {
             Debug.Log("Hit enemy: " + other.name);
             // TODO: damage enemy here
+            // Try to damage enemy
+            Enemy enemy = other.GetComponent<Enemy>();
+            if (enemy != null)
+            {
+                enemy.TakeDamage(damage);
+            }
 
             // Bounce if attacking downward
             if (attackDir.y < -0.5f && player != null)
