@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -33,6 +33,13 @@ public class PlayerController : MonoBehaviour
     public float attackOffset = 1.0f;
     private Vector2 facingDirection = Vector2.right; // default facing right for attacks
 
+    // Knockback settings
+    [Header("Damage & Knockback")]
+    public float knockbackForce = 10f;
+    public float knockbackUpwardForce = 4f;
+    public float invincibilityDuration = 1f;
+    private bool isInvincible = false;
+
 
     private void Awake()
     {
@@ -60,25 +67,26 @@ public class PlayerController : MonoBehaviour
     }
     public void TakeDamage(int damage)
     {
+        if (isInvincible) return;
+
         currentHealth -= damage;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
-
         OnHealthChanged?.Invoke(currentHealth);
 
         if (currentHealth <= 0)
         {
             Debug.Log("Player died!");
 
-            // Trigger the Game Over UI & pause
             if (GameOverManager.Instance != null)
-            {
                 GameOverManager.Instance.GameOver();
-            }
             else
-            {
                 Debug.LogWarning("No GameOverManager instance found in the scene!");
-            }
         }
+        else
+        {
+            StartCoroutine(InvincibilityFlash());
+        }
+
     }
 
 
@@ -225,7 +233,8 @@ public class PlayerController : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Ground") || collision.gameObject.layer == LayerMask.NameToLayer("Platform"))
+        if (collision.gameObject.CompareTag("Ground") || 
+            collision.gameObject.layer == LayerMask.NameToLayer("Platform"))
         {
             resetJumps();
 
@@ -238,6 +247,23 @@ public class PlayerController : MonoBehaviour
         //    TakeDamage(1);
         //    Destroy(collision.gameObject);
         //}
+
+        // Enemy collision knockback & damage
+        if (collision.gameObject.CompareTag("Enemy") || collision.gameObject.CompareTag("EnemyBullet"))
+        {
+            if (!isInvincible)
+            {
+                TakeDamage(1);
+
+                // Determine direction of knockback
+                float knockDir = transform.position.x > collision.transform.position.x ? 1 : -1;
+
+                // Apply diagonal knockback
+                rb.linearVelocity = Vector2.zero;
+                Vector2 knockback = new Vector2(knockDir * knockbackForce, knockbackUpwardForce);
+                rb.AddForce(knockback, ForceMode2D.Impulse);
+            }
+        }
 
     }
     private void OnTriggerEnter2D(Collider2D collision)
@@ -264,6 +290,22 @@ public class PlayerController : MonoBehaviour
 
     }
 
+    // Invincibility coroutine with flashing effect
+    private IEnumerator InvincibilityFlash()
+    {
+        isInvincible = true;
+        float timer = 0f;
+
+        while (timer < invincibilityDuration)
+        {
+            spriteRenderer.enabled = !spriteRenderer.enabled; // flicker
+            yield return new WaitForSeconds(0.1f);
+            timer += 0.1f;
+        }
+
+        spriteRenderer.enabled = true;
+        isInvincible = false;
+    }
 
 
 }
