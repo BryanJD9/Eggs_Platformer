@@ -108,6 +108,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
   player: {fileID: 0}
+  maxHealth: 3
+  flashDuration: 0.1
+  damageFlashColor: {r: 1, g: 0, b: 0, a: 1}
+  isActive: 0
 --- !u!114 &6608020318106536295
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -121,6 +125,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WalkingEnemy
   player: {fileID: 0}
+  maxHealth: 3
+  flashDuration: 0.1
+  damageFlashColor: {r: 1, g: 0, b: 0, a: 1}
+  isActive: 0
   moveSpeed: 2
 --- !u!61 &379243098907994396
 BoxCollider2D:
@@ -129,7 +137,7 @@ BoxCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8596044783764414523}
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
