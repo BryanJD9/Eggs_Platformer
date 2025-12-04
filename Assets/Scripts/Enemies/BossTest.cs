@@ -155,12 +155,13 @@ public class BossTest : Enemy
     // Override Die to trigger Win condition
     public override void Die()
     {
-        base.Die(); // destroys the boss object
 
         if (GameOverManager.Instance != null)
             GameOverManager.Instance.WinGame();
         else
             Debug.LogWarning("GameOverManager not found in scene!");
+
+        base.Die(); // destroys the boss object
     }
 
 
