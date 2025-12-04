@@ -40,7 +40,12 @@ public class AttackHitbox : MonoBehaviour
         // Destroy enemy bullets if hit by attack
         if (other.CompareTag("EnemyBullet"))
         {
-            player.BounceFromDownAttack();
+            if (attackDir.y < -0.5f && player != null)
+            {
+                player.BounceFromDownAttack();
+                Debug.Log("Downward bullet hit");
+            }
+
             Destroy(other.gameObject);
             Debug.Log("Destroyed enemy bullet!");
         }
