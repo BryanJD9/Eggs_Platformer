@@ -36,6 +36,7 @@ public class WalkingEnemy : Enemy
 
         // Flip sprite based on direction
         if (spriteRenderer != null)
-            spriteRenderer.flipX = moveDir < 0;
+            spriteRenderer.flipX = moveDir > 0;
     }
+
 }
