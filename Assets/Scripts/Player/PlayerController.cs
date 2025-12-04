@@ -3,7 +3,6 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-
 public class PlayerController : MonoBehaviour
 {
     private Rigidbody2D rb;
@@ -20,36 +19,32 @@ public class PlayerController : MonoBehaviour
     public static Action<int> OnHealthChanged;
 
     [Header("Movement Settings")]
-    public float moveSpeed = 5.0f;
-    public float jumpForce = 15.0f;
+    public float moveSpeed = 5f;
+    public float jumpForce = 15f;
     public float bounceForce = 7.5f;
 
     [Header("Jump Settings")]
-    public int maxJumps = 2;   // adjust for more jumps
+    public int maxJumps = 2;
     public int jumpsRemaining;
 
     [Header("Attack Settings")]
     public GameObject attackPrefab;
-    public float attackOffset = 1.0f;
-    private Vector2 facingDirection = Vector2.right; // default facing right for attacks
+    public float attackOffset = 1f;
+    private Vector2 facingDirection = Vector2.right;
 
-    // Knockback settings
     [Header("Damage & Knockback")]
     public float knockbackForce = 10f;
     public float knockbackUpwardForce = 4f;
     public float invincibilityDuration = 1f;
     private bool isInvincible = false;
 
-
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         controls = new PlayerControls();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        rb.freezeRotation = true;
 
-        rb.freezeRotation = true; // Keep player upright, can toggle in inspector
-
-        // Movement InputSystem
         controls.Movement.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
         controls.Movement.Move.canceled += ctx => moveInput = Vector2.zero;
 
@@ -63,8 +58,8 @@ public class PlayerController : MonoBehaviour
 
         currentHealth = maxHealth;
         OnHealthChanged?.Invoke(currentHealth);
-
     }
+
     public void TakeDamage(int damage)
     {
         if (isInvincible) return;
@@ -76,119 +71,78 @@ public class PlayerController : MonoBehaviour
         if (currentHealth <= 0)
         {
             Debug.Log("Player died!");
-
-            if (GameOverManager.Instance != null)
-                GameOverManager.Instance.GameOver();
-            else
-                Debug.LogWarning("No GameOverManager instance found in the scene!");
+            GameOverManager.Instance?.GameOver();
         }
         else
         {
             StartCoroutine(InvincibilityFlash());
         }
-
     }
-
 
     public void Heal(int amount)
     {
         currentHealth += amount;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
-
         OnHealthChanged?.Invoke(currentHealth);
     }
 
-    #region InputSystems
-    private void OnEnable()
-    {
-        controls.Movement.Enable();
-    }
-
-    private void OnDisable()
-    {
-        controls.Movement.Disable();
-    }
-    #endregion
+    private void OnEnable() => controls.Movement.Enable();
+    private void OnDisable() => controls.Movement.Disable();
 
     private void Update()
     {
-        // Horizontal movement
         rb.linearVelocity = new Vector2(moveInput.x * moveSpeed, rb.linearVelocity.y);
 
-        // Flip sprite based on direction
-        if (moveInput.x > 0.01f) spriteRenderer.flipX = false; // facing right
-        if (moveInput.x < -0.01f) spriteRenderer.flipX = true;  // facing left
+        if (moveInput.x > 0.01f) spriteRenderer.flipX = false;
+        if (moveInput.x < -0.01f) spriteRenderer.flipX = true;
 
-        // handle facing direction for attacks
         if (moveInput.x > 0.1f)
             facingDirection = Vector2.right;
         else if (moveInput.x < -0.1f)
             facingDirection = Vector2.left;
-
     }
 
-    #region Movement Functions
+    #region Movement
     private void Jump()
     {
-        // Check if holding down (fall through)
         bool holdingDown = attackInput.y < -0.1f;
 
         if (holdingDown && isGrounded)
         {
-            // fall through platform instead of jumping
             StartCoroutine(FallThroughPlatform());
             return;
         }
 
-        // double jump
         if (jumpsRemaining > 0)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
             jumpsRemaining--;
         }
-
-        //if (isGrounded)
-        //{
-        //    rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
-        //}
-
     }
 
-    private IEnumerator FallThroughPlatform() // Allow from jumping below platforms
+    private IEnumerator FallThroughPlatform()
     {
-        // disable collisions between player layer and platform layer
-        Physics2D.IgnoreLayerCollision(
-            LayerMask.NameToLayer("Player"),
-            LayerMask.NameToLayer("Platform"),
-            true
-        );
-
-        yield return new WaitForSeconds(0.3f); // enough time to drop down
-
-        Physics2D.IgnoreLayerCollision(
-            LayerMask.NameToLayer("Player"),
-            LayerMask.NameToLayer("Platform"),
-            false
-        );
+        Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("Player"),
+                                       LayerMask.NameToLayer("Platform"), true);
+        yield return new WaitForSeconds(0.3f);
+        Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("Player"),
+                                       LayerMask.NameToLayer("Platform"), false);
     }
 
     private void resetJumps()
     {
         isGrounded = true;
-        jumpsRemaining = maxJumps; // refresh jumps
+        jumpsRemaining = maxJumps;
     }
-
     #endregion
 
-    #region Attack logic
+    #region Attack
     private void Attack()
     {
-        Vector2 attackDir = facingDirection; // default left/right
+        Vector2 attackDir = facingDirection;
 
-        if (attackInput.y > 0.1f)
-            attackDir = Vector2.up;
-        else if (attackInput.y < -0.1f)
-            attackDir = Vector2.down;
+        if (attackInput.y > 0.1f) attackDir = Vector2.up;
+        else if (attackInput.y < -0.1f) attackDir = Vector2.down;
 
         Vector2 spawnPos = (Vector2)transform.position + attackDir * attackOffset;
 
@@ -196,85 +150,53 @@ public class PlayerController : MonoBehaviour
         hitbox.transform.SetParent(transform);
         hitbox.transform.right = attackDir;
 
-        // Tell hitbox its attack direction
         var hitboxScript = hitbox.GetComponent<AttackHitbox>();
         if (hitboxScript != null)
             hitboxScript.attackDir = attackDir;
-
-        //Vector2 attackDir = facingDirection; // default left/right
-
-        //if (attackInput.y > 0.1f)
-        //    attackDir = Vector2.up;
-        //else if (attackInput.y < -0.1f)
-        //    attackDir = Vector2.down;
-
-        //Vector2 spawnPos = (Vector2)transform.position + attackDir * attackOffset;
-
-        //GameObject hitbox = Instantiate(attackPrefab, spawnPos, Quaternion.identity);
-        //hitbox.transform.SetParent(transform);
-        //hitbox.transform.right = attackDir;
-
-        
     }
 
     public void BounceFromDownAttack()
     {
-        // Give upward velocity
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
-
-        // Reset jumps as if grounded
         jumpsRemaining = maxJumps;
-        isGrounded = false; // not grounded, but reset so double jump works again
-
+        isGrounded = false;
     }
-
-
     #endregion
 
+    #region Collision
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Ground") || 
+        if (collision.gameObject.CompareTag("Ground") ||
             collision.gameObject.layer == LayerMask.NameToLayer("Platform"))
         {
             resetJumps();
-
         }
 
-        //hit by enemy bullet
-        //if (collision.gameObject.CompareTag("EnemyBullet"))
-        //{
-        //    //TODO: Add reaction to being hit by enemy
-        //    TakeDamage(1);
-        //    Destroy(collision.gameObject);
-        //}
-
-        // Enemy collision knockback & damage
-        if (collision.gameObject.CompareTag("Enemy") || 
-            collision.gameObject.CompareTag("EnemyBullet") ||
-            collision.gameObject.CompareTag("Spikes"))
+        if ((collision.gameObject.CompareTag("Enemy") ||
+             collision.gameObject.CompareTag("EnemyBullet") ||
+             collision.gameObject.CompareTag("Spikes")) && !isInvincible)
         {
-            if (!isInvincible)
+            TakeDamage(1);
+
+            float knockDir = transform.position.x > collision.transform.position.x ? 1 : -1;
+            rb.linearVelocity = Vector2.zero;
+            Vector2 knockback = new Vector2(knockDir * knockbackForce, knockbackUpwardForce);
+            rb.AddForce(knockback, ForceMode2D.Impulse);
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        // Ignore attack hitboxes
+        if (other.GetComponent<AttackHitbox>() != null) return;
+
+        if (other.CompareTag("EnemyBullet"))
+        {
+            EnemyBulletMovement bullet = other.GetComponent<EnemyBulletMovement>();
+            if (bullet != null && !bullet.ignoredByPlayer)
             {
                 TakeDamage(1);
-
-                // Determine direction of knockback
-                float knockDir = transform.position.x > collision.transform.position.x ? 1 : -1;
-
-                // Apply diagonal knockback
-                rb.linearVelocity = Vector2.zero;
-                Vector2 knockback = new Vector2(knockDir * knockbackForce, knockbackUpwardForce);
-                rb.AddForce(knockback, ForceMode2D.Impulse);
             }
-        }
-
-    }
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.CompareTag("EnemyBullet"))
-        {
-            Debug.Log("Hit by Enemy Bullet (Trigger)!");
-            TakeDamage(1);
-            Destroy(collision.gameObject);
         }
     }
 
@@ -284,16 +206,12 @@ public class PlayerController : MonoBehaviour
             collision.gameObject.CompareTag("Spikes") ||
             collision.gameObject.layer == LayerMask.NameToLayer("Platform"))
         {
-            // Only un-ground if we're not basically standing still vertically
             if (Mathf.Abs(rb.linearVelocity.y) > 0.01f)
-            {
                 isGrounded = false;
-            }
         }
-
     }
+    #endregion
 
-    // Invincibility coroutine with flashing effect
     private IEnumerator InvincibilityFlash()
     {
         isInvincible = true;
@@ -301,7 +219,7 @@ public class PlayerController : MonoBehaviour
 
         while (timer < invincibilityDuration)
         {
-            spriteRenderer.enabled = !spriteRenderer.enabled; // flicker
+            spriteRenderer.enabled = !spriteRenderer.enabled;
             yield return new WaitForSeconds(0.1f);
             timer += 0.1f;
         }
@@ -309,6 +227,4 @@ public class PlayerController : MonoBehaviour
         spriteRenderer.enabled = true;
         isInvincible = false;
     }
-
-
 }

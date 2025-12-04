@@ -48,7 +48,7 @@ public class BossTest : Enemy
             float waitTime = Random.Range(minActionInterval, maxActionInterval);
             yield return new WaitForSeconds(waitTime);
 
-            int action = Random.Range(0, 3); // 0=Ground, 1=Platform, 2=Shoot
+            int action = Random.Range(2, 3); // 0=Ground, 1=Platform, 2=Shoot
 
             switch (action)
             {

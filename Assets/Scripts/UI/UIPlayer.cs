@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,6 +17,18 @@ public class UIPlayer : MonoBehaviour
     private void OnDisable()
     {
         PlayerController.OnHealthChanged -= UpdateHealthUI;
+    }
+
+    private void Start()
+    {
+        PlayerController player = FindFirstObjectOfType<PlayerController>();
+        if (player != null)
+            UpdateHealthUI(player.currentHealth);
+    }
+
+    private T FindFirstObjectOfType<T>()
+    {
+        throw new NotImplementedException();
     }
 
     private void UpdateHealthUI(int currentHealth)

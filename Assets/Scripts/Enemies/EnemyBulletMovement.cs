@@ -7,14 +7,13 @@ public class EnemyBulletMovement : MonoBehaviour
 
     private Vector2 direction;
 
-    public void SetDirection(Vector2 dir)
-    {
-        direction = dir.normalized;
-    }
+    [HideInInspector] public bool ignoredByPlayer = false;
+
+    public void SetDirection(Vector2 dir) => direction = dir.normalized;
 
     private void Start()
     {
-        Destroy(gameObject, lifeTime); // Destroy bullet after lifetime expires
+        Destroy(gameObject, lifeTime);
     }
 
     private void Update()
@@ -24,12 +23,12 @@ public class EnemyBulletMovement : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Player"))
+        if (collision.CompareTag("PlayerAttack"))
         {
-            // Example: damage player
-            Debug.Log("Player hit by enemy bullet!");
-            //Destroy(gameObject);
+            ignoredByPlayer = true; // mark to avoid hitting player
+            Destroy(gameObject);
         }
-    }
 
+        // Player damage handled in PlayerController
+    }
 }

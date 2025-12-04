@@ -11,6 +11,7 @@ TagManager:
   - BounceObject
   - Spikes
   - StageFinish
+  - PlayerAttack
   layers:
   - Default
   - TransparentFX
@@ -20,9 +21,9 @@ TagManager:
   - UI
   - Platform
   - Player
-  - 
-  - 
-  - 
+  - PlayerAttack
+  - Enemy
+  - EnemyBullet
   - 
   - 
   - 
